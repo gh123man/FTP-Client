@@ -1,11 +1,11 @@
-package com.floersch.brian.ftp;
+package com.floersch.brian.ftpChannels;
 
-class IPAndPort {
+public class IpAndPort {
 	
 	private String mIp;
 	private int mPort;
 	
-	public IPAndPort(String Ip, int port) {
+	public IpAndPort(String Ip, int port) {
 		mIp = Ip;
 		mPort = port;
 	}
