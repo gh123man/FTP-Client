@@ -2,43 +2,27 @@ package com.floersch.brian.ftpChannels;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Class for handling an FTP data channel
  * 
  * @author brian
  */
-public class FtpDataChannel implements Runnable {
-
-    /** constants */
-    private static final String   FIND_IP_AND_PORT = "\\((\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?)\\)";
-    private static final char     DOT              = '.';
+public abstract class FtpDataChannel implements Runnable {
 
     /** Members */
-    private Thread                mThread;
-    private Socket                mSocket;
-    private InputStream           mInputStream;
-    private IFtpDataChannelEvents mEventHandler;
+    private Thread                      mThread;
+    private volatile InputStream           mInputStream;
+    private final IFtpDataChannelEvents mEventHandler;
 
-    /**
-     * Constructor
-     * 
-     * @param address
-     * @param port
-     * @param eventHandler
-     * @throws UnknownHostException
-     * @throws IOException
-     */
-    public FtpDataChannel(String address, int port, IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
-        mSocket = new Socket(address, port);
-        mInputStream = mSocket.getInputStream();
+    protected FtpDataChannel(IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
         mEventHandler = eventHandler;
-        mEventHandler.onConnect();
     }
+    
+    abstract void connect();
+    abstract InputStream getInputStream();
+    
 
     /*
      * (non-Javadoc)
@@ -47,7 +31,14 @@ public class FtpDataChannel implements Runnable {
      */
     @Override
     public void run() {
+        connect();
+        initlize();
         readStream();
+    }
+    
+    protected void initlize() {
+        mInputStream = getInputStream();
+        mEventHandler.onConnect();
     }
 
     /**
@@ -82,35 +73,4 @@ public class FtpDataChannel implements Runnable {
         mThread.join();
     }
 
-    /**
-     * Decodes a string containing passive IP and Port
-     * 
-     * @param input
-     * @return
-     */
-    public static IpAndPort decodePasv(String input) {
-
-        Pattern p = Pattern.compile(FIND_IP_AND_PORT);
-        Matcher m = p.matcher(input);
-
-        if (m.find()) {
-            String ip = "";
-            int port = 0;
-            for (int i = 1; i <= m.groupCount(); i++) {
-                if (i < 4) {
-                    ip += m.group(i) + DOT;
-                } else if (i == 4) {
-                    ip += m.group(i);
-                } else if (i == 5) {
-                    port = Integer.parseInt(m.group(i));
-                    port *= 256;
-                } else if (i == 6) {
-                    port += Integer.parseInt(m.group(i));
-                }
-            }
-            return new IpAndPort(ip, port);
-
-        }
-        return null;
-    }
 }
