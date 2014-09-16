@@ -14,11 +14,9 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 	private static final String PROMPT            = "ftp>:";
 	private static final String DISCONNECTED      = "\nDISCONNECTED!!!!";
 	private static final String AMBIGUOUS_COMMAND = "?Ambiguous command";
-	
-	/** States */
-	private static final int MODE_NONE    = 0;
-	private static final int MODE_PASSIVE = 1;
-	private static final int MODE_ACTIVE  = 2;
+	private static final String PASSIVE_MODE = "Passive mode %s";
+	private static final String ON = "on\n";
+	private static final String OFF = "off\n";
 	
 	/** user commands */
 	private static final String DIR     = "dir";
@@ -28,16 +26,17 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 	private static final String CDUP    = "cdup";
 	private static final String PWD     = "pwd";
 	private static final String PASSIVE = "passive";
+	private static final String USER    = "user";
 	
 	
 	/** Members */
 	private FtpCmdChannel mServer;
 	private BufferedReader mReader = new BufferedReader(new InputStreamReader(System.in));
-	private int mMode = MODE_NONE;
 	private FtpDataChannel mDataChannel;
 	private boolean mPrintPayload = false;
 	private boolean mBlockInput = false;
 	private ByteArrayOutputStream mDataBuffer;
+	private boolean mPassiveMode = false;
 	
 	
 
@@ -67,19 +66,19 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 		
 			case FtpCmdChannel.READY_FOR_NEW_USER:
 			case FtpCmdChannel.NOT_LOGGED_IN:
-				
 				System.out.print(response);
 				System.out.print(NAME);
-				mServer.write(FtpCmdChannel.USER + " " + getUserInput());
+				mServer.write(String.format(FtpCmdChannel.USER, getUserInput()));
 				responseHandled = true;
 				break;
+				
 				
 			
 			case FtpCmdChannel.UNAME_OK_NEED_PASS:
 				
 				System.out.print(response);
 				System.out.print(PASSWORD);
-				mServer.write(FtpCmdChannel.PASS + " " + getUserInput());
+				mServer.write(String.format(FtpCmdChannel.PASS, getUserInput()));
 				responseHandled = true;
 				break;
 				
@@ -89,6 +88,9 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 			case FtpCmdChannel.ENTERING_PASSIVE_MODE:
 				
 				openDataChannel(FtpDataChannel.decodePasv(response));
+				break;
+				
+			case FtpCmdChannel.CANNOT_OPEN_DATA_CHANNEL:
 				break;
 				
 			case FtpCmdChannel.ABOUT_TO_OPEN_DATA_CHANNEL:
@@ -122,11 +124,23 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 	}
 	
 	private void parseCommands(String input) {
-		switch (input) {
+		
+		String command = null;
+		if(input.contains(" ")){
+			command = input.substring(0, input.indexOf(" ")); 
+		} else {
+			command = input;
+		}
+		
+		switch (command) {
 			case DIR:
 				mPrintPayload = true;
 				mBlockInput = true;
-				mServer.write(FtpCmdChannel.PASSIVE); //active by default?
+				if (mPassiveMode) {
+					mServer.write(FtpCmdChannel.PASSIVE);
+				} else {
+					//active mode
+				}
 				mServer.write(FtpCmdChannel.LIST);
 				break;
 				
@@ -145,10 +159,24 @@ public class FtpClient implements IftpCmdChannelActions, IFtpDataChannelActions 
 				
 			case CDUP:
 				mServer.write(FtpCmdChannel.CDUP);
+				break;
 				
 			case PWD:
 				mServer.write(FtpCmdChannel.PWD);
+				break;
+			
+			case PASSIVE:
+				if (mPassiveMode = !mPassiveMode) {
+					System.out.print(String.format(PASSIVE_MODE, ON));
+				} else {
+					System.out.print(String.format(PASSIVE_MODE, OFF));
+				}
+				prompt();
+				break;
 				
+			case USER:
+				mServer.write(input);
+				break;
 				
 			default:
 				if (!input.equals("")) {

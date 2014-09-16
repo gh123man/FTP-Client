@@ -16,10 +16,11 @@ public class FtpCmdChannel implements Runnable {
 	public static final int ENTERING_PASSIVE_MODE      = 227;
 	public static final int CLOSING_DATA_CHANNEL       = 226;
 	public static final int ABOUT_TO_OPEN_DATA_CHANNEL = 150;
+	public static final int CANNOT_OPEN_DATA_CHANNEL   = 425;
 	
 	/** commands */
-	public static final String USER        = "USER";
-	public static final String PASS    	   = "PASS";
+	public static final String USER        = "USER %s";
+	public static final String PASS    	   = "PASS %s";
 	public static final String PASSIVE     = "PASV";
 	public static final String LIST        = "LIST";
 	public static final String TYPE_ASCII  = "TYPE A";
