@@ -6,18 +6,23 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Class for handling an FTP Command channel connection
+ * 
+ * @author brian
+ */
 public class FtpCmdChannel implements Runnable {
 
     /** response codes */
-    public static final int      READY_FOR_NEW_USER         = 220;
-    public static final int      NOT_LOGGED_IN              = 530;
-    public static final int      UNAME_OK_NEED_PASS         = 331;
-    public static final int      USER_LOGGED_IN             = 230;
-    public static final int      ENTERING_PASSIVE_MODE      = 227;
-    public static final int      CLOSING_DATA_CHANNEL       = 226;
     public static final int      ABOUT_TO_OPEN_DATA_CHANNEL = 150;
-    public static final int      CANNOT_OPEN_DATA_CHANNEL   = 425;
     public static final int      PORT_SUCCESS               = 200;
+    public static final int      READY_FOR_NEW_USER         = 220;
+    public static final int      CLOSING_DATA_CHANNEL       = 226;
+    public static final int      ENTERING_PASSIVE_MODE      = 227;
+    public static final int      USER_LOGGED_IN             = 230;
+    public static final int      UNAME_OK_NEED_PASS         = 331;
+    public static final int      CANNOT_OPEN_DATA_CHANNEL   = 425;
+    public static final int      NOT_LOGGED_IN              = 530;
 
     /** commands */
     private static final String  USER                       = "USER %s";
@@ -40,6 +45,15 @@ public class FtpCmdChannel implements Runnable {
     private boolean              mConnected;
     private IftpCmdChannelEvents mEventHandler;
 
+    /**
+     * Constructor.
+     * 
+     * @param address
+     * @param port
+     * @param eventHandler
+     * @throws UnknownHostException
+     * @throws IOException
+     */
     public FtpCmdChannel(String address, int port, IftpCmdChannelEvents eventHandler) throws UnknownHostException, IOException {
         mSocket = new Socket(address, port);
         mWriter = new PrintStream(mSocket.getOutputStream());
@@ -48,28 +62,44 @@ public class FtpCmdChannel implements Runnable {
         mEventHandler = eventHandler;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Runnable#run()
+     */
     @Override
     public void run() {
-        readServer();
+        readStream();
 
     }
 
+    /**
+     * Starts the thread
+     */
     public void start() {
         mThread = new Thread(this);
         mThread.start();
     }
 
+    /**
+     * writes a command to the server
+     * 
+     * @param command
+     */
     private void write(String command) {
         mWriter.println(command);
     }
 
-    private void readServer() {
+    /**
+     * reads the current stream
+     */
+    private void readStream() {
         try {
 
             FtpRawResponse response;
 
             while (mConnected) {
-                response = getBuffer(); // throws
+                response = parseStream(); // throws
                 if (response == null) {
                     mEventHandler.disconnected();
                     return;
@@ -82,7 +112,13 @@ public class FtpCmdChannel implements Runnable {
         }
     }
 
-    private FtpRawResponse getBuffer() throws IOException {
+    /**
+     * Parses the stream
+     * 
+     * @return An FtpRawResponse
+     * @throws IOException
+     */
+    private FtpRawResponse parseStream() throws IOException {
 
         String out = "";
         int i;
@@ -125,6 +161,8 @@ public class FtpCmdChannel implements Runnable {
 
     }
 
+    /** Below are command methods for communicating with the FTP server */
+
     public synchronized void newUser(String username) {
         write(String.format(USER, username));
     }
@@ -160,8 +198,8 @@ public class FtpCmdChannel implements Runnable {
     public synchronized void setPassiveMode() {
         write(PASSIVE);
     }
-    
-    public void cd(String dir) {
+
+    public synchronized void cd(String dir) {
         write(String.format(CD, dir));
     }
 
