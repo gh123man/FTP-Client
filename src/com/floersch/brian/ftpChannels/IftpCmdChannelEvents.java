@@ -13,11 +13,11 @@ public interface IftpCmdChannelEvents {
      * @param code
      * @param response
      */
-    void endOfResponse(int code, String response);
+    void onResponse(int code, String response);
 
     /**
      * Notifies a disconnect
      */
-    void disconnected();
+    void onDisconnect();
 
 }

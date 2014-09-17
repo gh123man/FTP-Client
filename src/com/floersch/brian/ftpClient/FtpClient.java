@@ -1,6 +1,9 @@
 package com.floersch.brian.ftpClient;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
@@ -31,6 +34,7 @@ public class FtpClient implements IftpCmdChannelEvents {
 
     /** user commands */
     private static final String DIR               = "dir";
+    private static final String LS                = "ls";
     private static final String ASCII             = "ascii";
     private static final String BINARY            = "binary";
     private static final String QUIT              = "quit";
@@ -39,9 +43,11 @@ public class FtpClient implements IftpCmdChannelEvents {
     private static final String PASSIVE           = "passive";
     private static final String USER              = "user";
     private static final String CD                = "cd";
+    private static final String GET               = "get";
 
     /** other constants */
     private static final String FIND_CMD          = "(.*?)\\s";
+    public static final String  PATH_FORMAT       = "%s/%s";
 
     /** Members */
     private FtpClientState      mState;
@@ -62,29 +68,16 @@ public class FtpClient implements IftpCmdChannelEvents {
         mState = new FtpClientState();
         mCmdChannel = new FtpCmdChannel(address, port, this);
         mEventHandler = eventHandler;
-
-            mCmdChannel.readStream();
+        mCmdChannel.readStream();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.floersch.brian.ftpChannels.IftpCmdChannelEvents#disconnected()
-     */
     @Override
-    public void disconnected() {
+    public void onDisconnect() {
         mEventHandler.println(DISCONNECTED);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.floersch.brian.ftpChannels.IftpCmdChannelEvents#endOfResponse(int,
-     * java.lang.String)
-     */
     @Override
-    public void endOfResponse(int code, String response) {
+    public void onResponse(int code, String response) {
 
         boolean responseHandled = false;
 
@@ -118,9 +111,8 @@ public class FtpClient implements IftpCmdChannelEvents {
                 openPassiveDataChannel(PassiveDataChannel.decodePasv(response), mState.getDataChannelEventListener());
                 mDataChannel.initlize();
                 break;
-                
+
             case FtpCmdChannel.PORT_SUCCESS:
-                mDataChannel.initlize();
                 break;
 
             case FtpCmdChannel.CANNOT_OPEN_DATA_CHANNEL:
@@ -136,7 +128,6 @@ public class FtpClient implements IftpCmdChannelEvents {
                 mState.setBlockUserInput(false);
                 break;
 
-            
             default:
                 break;
         }
@@ -146,17 +137,7 @@ public class FtpClient implements IftpCmdChannelEvents {
             if (!mState.getBlockUserInput()) {
                 prompt();
             }
-
         }
-
-    }
-
-    /**
-     * Prompts the event handler for data
-     */
-    private void prompt() {
-        mEventHandler.print(PROMPT);
-        parseCommands(mEventHandler.requestInput());
     }
 
     /**
@@ -176,11 +157,11 @@ public class FtpClient implements IftpCmdChannelEvents {
         }
 
         switch (command) {
+            case LS:
             case DIR:
-
                 mState.setBlockUserInput(true);
 
-                // set up onConnect callback
+                // setup onConnect callback
                 mState.setOnDataChannelEventListener(new IFtpDataChannelEvents() {
                     @Override
                     public void onConnect(FtpDataChannel dataChannel) {
@@ -192,15 +173,37 @@ public class FtpClient implements IftpCmdChannelEvents {
                         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
                         dataChannel.copyStream(outStream);
                         mEventHandler.print(outStream.toString());
-                        
                     }
                 });
-
-                setDataChannelMode();
-                
-
+                requestOpenDataChannel();
                 break;
 
+            case GET:
+                mState.setBlockUserInput(true);
+
+                final String fileName = args;
+
+                // setup onConnect callback
+                mState.setOnDataChannelEventListener(new IFtpDataChannelEvents() {
+                    @Override
+                    public void onConnect(FtpDataChannel dataChannel) {
+                        mCmdChannel.retrieve(fileName);
+                    }
+
+                    @Override
+                    public void onChannelOpen(FtpDataChannel dataChannel) {
+                        try {
+                            File file = new File(String.format(PATH_FORMAT, System.getProperty("user.dir"), fileName));
+                            FileOutputStream outStream = new FileOutputStream(file);
+                            dataChannel.copyStream(outStream);
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace(); // TODO
+                        }
+                    }
+                });
+                requestOpenDataChannel();
+                break;
             case ASCII:
                 mCmdChannel.setAsciiMode();
                 break;
@@ -250,6 +253,14 @@ public class FtpClient implements IftpCmdChannelEvents {
     }
 
     /**
+     * Prompts the event handler for data
+     */
+    private void prompt() {
+        mEventHandler.print(PROMPT);
+        parseCommands(mEventHandler.requestInput());
+    }
+
+    /**
      * Opens a data channel
      * 
      * @param ipAndPort
@@ -265,18 +276,19 @@ public class FtpClient implements IftpCmdChannelEvents {
     private void openActiveDataChannel(IFtpDataChannelEvents eventListner) {
         try {
             mDataChannel = new ActiveDataChannel(eventListner);
-            mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel)mDataChannel).getIpAndFreePort()));
+            mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel) mDataChannel).getIpAndFreePort()));
+            mDataChannel.initlize();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-        
+
     /**
      * Sets the data channel mode on the server (not local)
      */
-    private void setDataChannelMode() {
+    private void requestOpenDataChannel() {
         if (mState.getPassiveMode()) {
             mCmdChannel.setPassiveMode();
         } else {

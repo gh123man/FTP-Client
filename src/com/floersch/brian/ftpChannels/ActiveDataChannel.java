@@ -39,7 +39,7 @@ public class ActiveDataChannel extends FtpDataChannel {
         byte[] ip = ipAndPort.getRawIp();
         int lhPortFragmnet = (int) Math.floor(ipAndPort.getPort() / 256);
         int rhPortFragmnet = ipAndPort.getPort() % 256;
-        return String.format(IP_PORT_FORMAT, (int)255&ip[0], (int)255&ip[1], (int)255&ip[2], (int)255&ip[3], lhPortFragmnet, rhPortFragmnet);
+        return String.format(IP_PORT_FORMAT, (int) 255 & ip[0], (int) 255 & ip[1], (int) 255 & ip[2], (int) 255 & ip[3], lhPortFragmnet, rhPortFragmnet);
     }
 
     public static byte[] getIpFromPrimaryNetworkInterface() {

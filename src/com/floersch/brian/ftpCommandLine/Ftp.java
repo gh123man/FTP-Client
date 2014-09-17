@@ -25,7 +25,7 @@ public class Ftp implements IFtpClientEvents {
         Ftp ftpCommandLineInterface = new Ftp();
 
         try {
-            new FtpClient("ftp.mozilla.org", 21, ftpCommandLineInterface);
+            new FtpClient("demo.wftpserver.com", 21, ftpCommandLineInterface);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

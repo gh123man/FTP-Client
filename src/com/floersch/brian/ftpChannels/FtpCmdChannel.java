@@ -38,6 +38,7 @@ public class FtpCmdChannel {
     private static final String        PWD                        = "PWD";
     private static final String        CD                         = "CWD %s";
     private static final String        PORT                       = "PORT %s";
+    private static final String        RETRIEVE                   = "RETR %s";
 
     /** Members */
     private final Socket               mSocket;
@@ -83,10 +84,10 @@ public class FtpCmdChannel {
             while (mConnected) {
                 response = parseStream(); // throws
                 if (response == null) {
-                    mEventHandler.disconnected();
+                    mEventHandler.onDisconnect();
                     return;
                 }
-                mEventHandler.endOfResponse(response.getCode(), response.getResponse());
+                mEventHandler.onResponse(response.getCode(), response.getResponse());
             }
 
         } catch (IOException e) {
@@ -182,12 +183,15 @@ public class FtpCmdChannel {
     }
 
     public void setActiveMode(String formattedIp) {
-        System.out.println(String.format(PORT, formattedIp));
         write(String.format(PORT, formattedIp));
     }
 
     public void cd(String dir) {
         write(String.format(CD, dir));
+    }
+    
+    public void retrieve(String file) {
+        write(String.format(RETRIEVE, file));
     }
 
 }
