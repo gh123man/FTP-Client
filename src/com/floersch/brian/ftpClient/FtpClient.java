@@ -4,18 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-import sun.java2d.pipe.hw.AccelDeviceEventListener;
-import sun.java2d.pipe.hw.AccelTypedVolatileImage;
-
 import com.floersch.brian.ftpChannels.ActiveDataChannel;
+import com.floersch.brian.ftpChannels.ActiveDataChannel.OnReadyListner;
 import com.floersch.brian.ftpChannels.FtpCmdChannel;
 import com.floersch.brian.ftpChannels.FtpDataChannel;
 import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
 import com.floersch.brian.ftpChannels.IftpCmdChannelEvents;
 import com.floersch.brian.ftpChannels.IpAndPort;
 import com.floersch.brian.ftpChannels.PassiveDataChannel;
-import com.floersch.brian.ftpChannels.ActiveDataChannel.OnReadyListner;
-import com.sun.xml.internal.ws.wsdl.writer.document.Port;
 
 /**
  * Manages connections to an FTP server
@@ -67,8 +63,13 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
     public FtpClient(String address, int port, IFtpClientEvents eventHandler) throws UnknownHostException, IOException {
         mState = new FtpClientState();
         mCmdChannel = new FtpCmdChannel(address, port, this);
-        mCmdChannel.start();
         mEventHandler = eventHandler;
+        
+        if (mCmdChannel != null) {
+            mCmdChannel.readStream();
+        }
+        
+        
     }
 
     /*
@@ -98,9 +99,9 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
      */
     @Override
     public synchronized void disconnected() {
-        mEventHandler.println(DISCONNECTED);
+        
     }
-
+    
     /*
      * (non-Javadoc)
      * 
@@ -110,7 +111,7 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
      */
     @Override
     public synchronized void endOfResponse(int code, String response) {
-
+        
         boolean responseHandled = false;
 
         switch (code) {

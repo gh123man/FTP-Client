@@ -6,7 +6,7 @@ package com.floersch.brian.ftpChannels;
  * @author brian
  * 
  */
-class FtpRawResponse {
+public class FtpRawResponse {
 
     /** Members */
     private int    mCode;
@@ -18,7 +18,7 @@ class FtpRawResponse {
      * @param code
      * @param response
      */
-    public FtpRawResponse(int code, String response) {
+    protected FtpRawResponse(int code, String response) {
         mCode = code;
         mResponse = response;
     }

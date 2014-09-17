@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
  * 
  * @author brian
  */
-public class FtpCmdChannel implements Runnable {
+public class FtpCmdChannel {
 
     /** response codes */
     public static final int            ABOUT_TO_OPEN_DATA_CHANNEL = 150;
@@ -39,7 +39,6 @@ public class FtpCmdChannel implements Runnable {
     private static final String        PORT                       = "PORT %s\r";
 
     /** Members */
-    private Thread                     mThread;
     private final Socket               mSocket;
     private final InputStream          mInputStream;
     private final PrintStream          mWriter;
@@ -63,23 +62,9 @@ public class FtpCmdChannel implements Runnable {
         mEventHandler = eventHandler;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Runnable#run()
-     */
-    @Override
-    public void run() {
-        readStream();
-
-    }
-
-    /**
-     * Starts the thread
-     */
-    public void start() {
-        mThread = new Thread(this);
-        mThread.start();
+    
+    public boolean connected() {
+        return mConnected;
     }
 
     /**
@@ -94,7 +79,7 @@ public class FtpCmdChannel implements Runnable {
     /**
      * reads the current stream
      */
-    private void readStream() {
+    public void readStream() {
         try {
 
             FtpRawResponse response;
@@ -119,7 +104,7 @@ public class FtpCmdChannel implements Runnable {
      * @return An FtpRawResponse
      * @throws IOException
      */
-    private FtpRawResponse parseStream() throws IOException {
+    public FtpRawResponse parseStream() throws IOException {
 
         String out = "";
         int i;
