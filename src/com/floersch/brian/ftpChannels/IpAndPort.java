@@ -1,6 +1,5 @@
 package com.floersch.brian.ftpChannels;
 
-
 /**
  * Class maintaining an IP and Port pair
  * 
@@ -43,9 +42,9 @@ public class IpAndPort {
         }
         return mIp;
     }
-    
+
     public byte[] getRawIp() {
-        if (mRawIp.length != 4) {
+        if (mRawIp == null) {
             return ipStringToArray(mIp);
         }
         return mRawIp;
@@ -65,7 +64,7 @@ public class IpAndPort {
     }
 
     public static byte[] ipStringToArray(String ip) {
-        String[] ipSplit = ip.split(".");
+        String[] ipSplit = ip.split("\\.");
         return new byte[] { (byte) Integer.parseInt(ipSplit[0]), (byte) Integer.parseInt(ipSplit[1]), (byte) Integer.parseInt(ipSplit[2]), (byte) Integer.parseInt(ipSplit[3]) };
     }
 

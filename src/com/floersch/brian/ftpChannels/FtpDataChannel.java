@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.UnknownHostException;
 
-
 /**
  * Class for handling an FTP data channel
  * 
@@ -27,7 +26,7 @@ public abstract class FtpDataChannel {
         mListener.onConnect(this);
         mInputStream = getInputStream();
     }
-    
+
     public void onChannelOpen() {
         mListener.onChannelOpen(this);
     }
@@ -42,10 +41,11 @@ public abstract class FtpDataChannel {
             while ((len = mInputStream.read(buffer)) != -1) {
                 outStream.write(buffer, 0, len);
             }
+            mInputStream.close();
         } catch (IOException e) {
-            e.printStackTrace(); // handle better
+            e.printStackTrace(); // TODO
         }
 
     }
-    
+
 }

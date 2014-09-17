@@ -10,9 +10,9 @@ import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
 class FtpClientState {
 
     /** Members */
-    private boolean              mBlockInput   = false;
-    private boolean              mPassiveMode  = false;
-    private boolean              mInitialLogin = false;
+    private boolean               mBlockInput   = false;
+    private boolean               mPassiveMode  = false;
+    private boolean               mInitialLogin = false;
     private IFtpDataChannelEvents mCallback;
 
     /**
@@ -59,6 +59,5 @@ class FtpClientState {
     public IFtpDataChannelEvents getDataChannelEventListener() {
         return mCallback;
     }
-
 
 }

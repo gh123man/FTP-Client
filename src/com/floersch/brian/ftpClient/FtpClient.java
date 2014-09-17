@@ -115,7 +115,11 @@ public class FtpClient implements IftpCmdChannelEvents {
                 break;
 
             case FtpCmdChannel.ENTERING_PASSIVE_MODE:
-                openPassiveDataChannel(PassiveDataChannel.decodePasv(response));
+                openPassiveDataChannel(PassiveDataChannel.decodePasv(response), mState.getDataChannelEventListener());
+                mDataChannel.initlize();
+                break;
+                
+            case FtpCmdChannel.PORT_SUCCESS:
                 mDataChannel.initlize();
                 break;
 
@@ -132,10 +136,7 @@ public class FtpClient implements IftpCmdChannelEvents {
                 mState.setBlockUserInput(false);
                 break;
 
-            case FtpCmdChannel.PORT_SUCCESS:
-                mDataChannel.initlize();
-                break;
-
+            
             default:
                 break;
         }
@@ -253,17 +254,17 @@ public class FtpClient implements IftpCmdChannelEvents {
      * 
      * @param ipAndPort
      */
-    private void openPassiveDataChannel(IpAndPort ipAndPort) {
+    private void openPassiveDataChannel(IpAndPort ipAndPort, IFtpDataChannelEvents eventListner) {
         try {
-            mDataChannel = new PassiveDataChannel(ipAndPort, mState.getDataChannelEventListener());
+            mDataChannel = new PassiveDataChannel(ipAndPort, eventListner);
         } catch (IOException e) {
             e.printStackTrace(); // TODO
         }
     }
 
-    private void openActiveDataChannel() {
+    private void openActiveDataChannel(IFtpDataChannelEvents eventListner) {
         try {
-            mDataChannel = new ActiveDataChannel(mState.getDataChannelEventListener());
+            mDataChannel = new ActiveDataChannel(eventListner);
             mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel)mDataChannel).getIpAndFreePort()));
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -279,7 +280,7 @@ public class FtpClient implements IftpCmdChannelEvents {
         if (mState.getPassiveMode()) {
             mCmdChannel.setPassiveMode();
         } else {
-            openActiveDataChannel();
+            openActiveDataChannel(mState.getDataChannelEventListener());
         }
     }
 

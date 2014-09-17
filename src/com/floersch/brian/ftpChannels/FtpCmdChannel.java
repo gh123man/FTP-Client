@@ -182,6 +182,7 @@ public class FtpCmdChannel {
     }
 
     public void setActiveMode(String formattedIp) {
+        System.out.println(String.format(PORT, formattedIp));
         write(String.format(PORT, formattedIp));
     }
 
