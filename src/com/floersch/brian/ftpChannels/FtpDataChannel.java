@@ -13,16 +13,16 @@ public abstract class FtpDataChannel implements Runnable {
 
     /** Members */
     private Thread                      mThread;
-    private volatile InputStream           mInputStream;
+    private volatile InputStream        mInputStream;
     private final IFtpDataChannelEvents mEventHandler;
 
     protected FtpDataChannel(IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
         mEventHandler = eventHandler;
     }
-    
+
     abstract void connect();
+
     abstract InputStream getInputStream();
-    
 
     /*
      * (non-Javadoc)
@@ -35,7 +35,7 @@ public abstract class FtpDataChannel implements Runnable {
         initlize();
         readStream();
     }
-    
+
     protected void initlize() {
         mInputStream = getInputStream();
         mEventHandler.onConnect();

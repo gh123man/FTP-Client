@@ -8,20 +8,22 @@ import java.net.UnknownHostException;
 
 public class ActiveDataChannel extends FtpDataChannel {
 
-    private static final String         IP_PORT_FORMAT   = "%d,%d,%d,%d,%d,%d";
-    
-    private volatile ServerSocket mSocket;
-    
-    public static ActiveDataChannel startNewActiveDataChannelThread(IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
-        ActiveDataChannel dataChannel = new ActiveDataChannel(eventHandler);
+    private static final String     IP_PORT_FORMAT = "%d,%d,%d,%d,%d,%d";
+
+    private volatile ServerSocket   mSocket;
+    private volatile OnReadyListner mOnReadyListner;
+
+    public static ActiveDataChannel startNewActiveDataChannelThread(IFtpDataChannelEvents eventHandler, OnReadyListner listener) throws UnknownHostException, IOException {
+        ActiveDataChannel dataChannel = new ActiveDataChannel(eventHandler, listener);
         dataChannel.start();
         return dataChannel;
     }
-    
-    private ActiveDataChannel(IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
+
+    private ActiveDataChannel(IFtpDataChannelEvents eventHandler, OnReadyListner listener) throws UnknownHostException, IOException {
         super(eventHandler);
+        mOnReadyListner = listener;
     }
-    
+
     @Override
     void connect() {
         try {
@@ -31,30 +33,32 @@ public class ActiveDataChannel extends FtpDataChannel {
             e.printStackTrace();
         }
     }
-    
-    
+
     public synchronized IpAndPort getIpAndFreePort() throws IOException {
         return new IpAndPort(InetAddress.getLocalHost().getAddress(), mSocket.getLocalPort());
     }
-    
+
     @Override
     InputStream getInputStream() {
         try {
+            mOnReadyListner.onReady();
             return mSocket.accept().getInputStream();
         } catch (IOException e) {
-            e.printStackTrace();//TODO
+            e.printStackTrace();// TODO
         }
         return null;
     }
-    
-    
+
     public static String encodeIpAndPort(IpAndPort ipAndPort) {
         byte[] ip = ipAndPort.getRawIp();
-        int rhPortFragmnet = (int) Math.floor(ipAndPort.getPort() / 256);
-        int lhPortFragmnet = ipAndPort.getPort() % 256;
+        int lhPortFragmnet = (int) Math.floor(ipAndPort.getPort() / 256);
+        int rhPortFragmnet = ipAndPort.getPort() % 256;
         System.out.println(ipAndPort.getPort());
-        return String.format(IP_PORT_FORMAT, ip[0], ip[1], ip[2], ip[3], rhPortFragmnet, lhPortFragmnet);
+        return String.format(IP_PORT_FORMAT, ip[0], ip[1], ip[2], ip[3], 181, 130);
     }
 
+    public interface OnReadyListner {
+        void onReady();
+    }
 
 }

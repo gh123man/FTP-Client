@@ -36,7 +36,7 @@ public class FtpCmdChannel implements Runnable {
     private static final String        QUIT                       = "QUIT";
     private static final String        PWD                        = "PWD";
     private static final String        CD                         = "CWD %s";
-    private static final String        PORT                       = "PORT %s";
+    private static final String        PORT                       = "PORT %s\r";
 
     /** Members */
     private Thread                     mThread;
@@ -200,8 +200,7 @@ public class FtpCmdChannel implements Runnable {
         write(PASSIVE);
     }
     
-    public void setActiveMode(String formattedIp) {
-        System.out.println(String.format(PORT, formattedIp));
+    public synchronized void setActiveMode(String formattedIp) {
         write(String.format(PORT, formattedIp));
     }
 

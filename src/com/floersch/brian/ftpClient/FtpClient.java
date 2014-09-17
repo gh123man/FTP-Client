@@ -14,6 +14,7 @@ import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
 import com.floersch.brian.ftpChannels.IftpCmdChannelEvents;
 import com.floersch.brian.ftpChannels.IpAndPort;
 import com.floersch.brian.ftpChannels.PassiveDataChannel;
+import com.floersch.brian.ftpChannels.ActiveDataChannel.OnReadyListner;
 import com.sun.xml.internal.ws.wsdl.writer.document.Port;
 
 /**
@@ -76,7 +77,7 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
      * @see com.floersch.brian.ftpChannels.IFtpDataChannelEvents#onConnect()
      */
     @Override
-    public void onConnect() {
+    public synchronized void onConnect() {
         mState.callOnDataConnect();
     }
 
@@ -86,7 +87,7 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
      * @see com.floersch.brian.ftpChannels.IFtpDataChannelEvents#writeByte(int)
      */
     @Override
-    public void writeByte(int b) {
+    public synchronized void writeByte(int b) {
         mDataBuffer.write(b);
     }
 
@@ -108,7 +109,7 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
      * java.lang.String)
      */
     @Override
-    public void endOfResponse(int code, String response) {
+    public synchronized void endOfResponse(int code, String response) {
 
         boolean responseHandled = false;
 
@@ -204,7 +205,7 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
             case DIR:
 
                 mState.setPrintPayload(true).setBlockUserInput(true);
-                
+
                 // set up onConnect callback
                 mState.setOnDataConnectOneTimeCallback(new IDataConnectCallback() {
                     @Override
@@ -291,8 +292,18 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
     
     private void openActiveDataChannel() {
         try {
-            mDataChannel = ActiveDataChannel.startNewActiveDataChannelThread(this);
             mDataBuffer = new ByteArrayOutputStream();
+            
+            mDataChannel = ActiveDataChannel.startNewActiveDataChannelThread(this, new OnReadyListner() {
+                @Override
+                public void onReady() {
+                    try {
+                        mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel)mDataChannel).getIpAndFreePort()));
+                    } catch (IOException e) {
+                        e.printStackTrace(); // TODO
+                    }
+                }
+            });
             
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -308,11 +319,6 @@ public class FtpClient implements IftpCmdChannelEvents, IFtpDataChannelEvents {
             mCmdChannel.setPassiveMode();
         } else {
             openActiveDataChannel();
-            try {
-                mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel)mDataChannel).getIpAndFreePort()));
-            } catch (IOException e) {
-                e.printStackTrace(); //TODO
-            }
         }
     }
 
