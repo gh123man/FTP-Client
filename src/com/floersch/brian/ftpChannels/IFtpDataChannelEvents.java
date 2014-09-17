@@ -7,16 +7,8 @@ package com.floersch.brian.ftpChannels;
  */
 public interface IFtpDataChannelEvents {
 
-    /**
-     * writes one byte to the handler
-     * 
-     * @param b
-     */
-    void writeByte(int b);
+    void onConnect(FtpDataChannel dataChannel);
 
-    /**
-     * Notifies on connect
-     */
-    void onConnect();
+    void onChannelOpen(FtpDataChannel dataChannel);
 
 }

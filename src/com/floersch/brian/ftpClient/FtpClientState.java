@@ -1,5 +1,7 @@
 package com.floersch.brian.ftpClient;
 
+import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
+
 /**
  * Class for managing an FTP client state
  * 
@@ -8,11 +10,10 @@ package com.floersch.brian.ftpClient;
 class FtpClientState {
 
     /** Members */
-    private boolean              mPrintPayload = false;
     private boolean              mBlockInput   = false;
     private boolean              mPassiveMode  = false;
     private boolean              mInitialLogin = false;
-    private IDataConnectCallback mCallback;
+    private IFtpDataChannelEvents mCallback;
 
     /**
      * Constructor
@@ -20,10 +21,6 @@ class FtpClientState {
      * @param state
      * @return
      */
-    public FtpClientState setPrintPayload(boolean state) {
-        mPrintPayload = state;
-        return this;
-    }
 
     /** Setters */
     public FtpClientState setBlockUserInput(boolean state) {
@@ -41,16 +38,12 @@ class FtpClientState {
         return this;
     }
 
-    public FtpClientState setOnDataConnectOneTimeCallback(IDataConnectCallback callback) {
+    public FtpClientState setOnDataChannelEventListener(IFtpDataChannelEvents callback) {
         mCallback = callback;
         return this;
     }
 
     /** Getters */
-    public boolean getPrintPayload() {
-        return mPrintPayload;
-    }
-
     public boolean getBlockUserInput() {
         return mBlockInput;
     }
@@ -63,13 +56,9 @@ class FtpClientState {
         return mInitialLogin;
     }
 
-    /**
-     * Calls the callback.
-     */
-    public void callOnDataConnect() {
-        IDataConnectCallback callback = mCallback;
-        mCallback = null;
-        callback.onConnect();
+    public IFtpDataChannelEvents getDataChannelEventListener() {
+        return mCallback;
     }
+
 
 }

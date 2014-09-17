@@ -2,75 +2,50 @@ package com.floersch.brian.ftpChannels;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
+
 
 /**
  * Class for handling an FTP data channel
  * 
  * @author brian
  */
-public abstract class FtpDataChannel implements Runnable {
+public abstract class FtpDataChannel {
 
     /** Members */
-    private Thread                      mThread;
     private volatile InputStream        mInputStream;
-    private final IFtpDataChannelEvents mEventHandler;
+    private final IFtpDataChannelEvents mListener;
 
-    protected FtpDataChannel(IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
-        mEventHandler = eventHandler;
+    protected FtpDataChannel(IFtpDataChannelEvents listener) throws UnknownHostException, IOException {
+        mListener = listener;
     }
-
-    abstract void connect();
 
     abstract InputStream getInputStream();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Runnable#run()
-     */
-    @Override
-    public void run() {
-        connect();
-        initlize();
-        readStream();
-    }
-
-    protected void initlize() {
+    public void initlize() {
+        mListener.onConnect(this);
         mInputStream = getInputStream();
-        mEventHandler.onConnect();
     }
-
-    /**
-     * Starts the thread
-     */
-    public void start() {
-        mThread = new Thread(this);
-        mThread.start();
+    
+    public void onChannelOpen() {
+        mListener.onChannelOpen(this);
     }
 
     /**
      * reads the data stream from the server
      */
-    private void readStream() {
-        int b;
+    public void copyStream(OutputStream outStream) {
         try {
-            while ((b = mInputStream.read()) != -1) {
-                mEventHandler.writeByte(b);
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = mInputStream.read(buffer)) != -1) {
+                outStream.write(buffer, 0, len);
             }
         } catch (IOException e) {
             e.printStackTrace(); // handle better
         }
 
     }
-
-    /**
-     * Calls Thread.join()
-     * 
-     * @throws InterruptedException
-     */
-    public void join() throws InterruptedException {
-        mThread.join();
-    }
-
+    
 }

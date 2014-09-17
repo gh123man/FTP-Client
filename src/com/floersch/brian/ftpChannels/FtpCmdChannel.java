@@ -25,6 +25,7 @@ public class FtpCmdChannel {
     public static final int            NOT_LOGGED_IN              = 530;
 
     /** commands */
+    private static final String        CMD_FORMAT                 = "%s\r\n";
     private static final String        USER                       = "USER %s";
     private static final String        PASS                       = "PASS %s";
     private static final String        PASSIVE                    = "PASV";
@@ -36,7 +37,7 @@ public class FtpCmdChannel {
     private static final String        QUIT                       = "QUIT";
     private static final String        PWD                        = "PWD";
     private static final String        CD                         = "CWD %s";
-    private static final String        PORT                       = "PORT %s\r";
+    private static final String        PORT                       = "PORT %s";
 
     /** Members */
     private final Socket               mSocket;
@@ -62,18 +63,13 @@ public class FtpCmdChannel {
         mEventHandler = eventHandler;
     }
 
-    
-    public boolean connected() {
-        return mConnected;
-    }
-
     /**
      * writes a command to the server
      * 
      * @param command
      */
     private void write(String command) {
-        mWriter.println(command);
+        mWriter.print(String.format(CMD_FORMAT, command));
     }
 
     /**
@@ -149,47 +145,47 @@ public class FtpCmdChannel {
 
     /** Below are command methods for communicating with the FTP server */
 
-    public synchronized void newUser(String username) {
+    public void newUser(String username) {
         write(String.format(USER, username));
     }
 
-    public synchronized void password(String password) {
+    public void password(String password) {
         write(String.format(PASS, password));
     }
 
-    public synchronized void setAsciiMode() {
+    public void setAsciiMode() {
         write(String.format(TYPE, A));
     }
 
-    public synchronized void setBinaryMode() {
+    public void setBinaryMode() {
         write(String.format(TYPE, I));
     }
 
-    public synchronized void quit() {
+    public void quit() {
         write(QUIT);
     }
 
-    public synchronized void cdUp() {
+    public void cdUp() {
         write(CDUP);
     }
 
-    public synchronized void pwd() {
+    public void pwd() {
         write(PWD);
     }
 
-    public synchronized void list() {
+    public void list() {
         write(LIST);
     }
 
-    public synchronized void setPassiveMode() {
+    public void setPassiveMode() {
         write(PASSIVE);
     }
-    
-    public synchronized void setActiveMode(String formattedIp) {
+
+    public void setActiveMode(String formattedIp) {
         write(String.format(PORT, formattedIp));
     }
 
-    public synchronized void cd(String dir) {
+    public void cd(String dir) {
         write(String.format(CD, dir));
     }
 

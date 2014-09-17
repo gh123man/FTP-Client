@@ -16,26 +16,10 @@ public class PassiveDataChannel extends FtpDataChannel {
     private final IpAndPort mIpAndPort;
     
     
-    public static PassiveDataChannel startNewPassiveDataChannel(IpAndPort ipAndPort, IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
-        PassiveDataChannel dataChannel = new PassiveDataChannel(ipAndPort, eventHandler);
-        dataChannel.start();
-        return dataChannel;
-    }
-    
-    private PassiveDataChannel(IpAndPort ipAndPort, IFtpDataChannelEvents eventHandler) throws UnknownHostException, IOException {
-        super(eventHandler);
+    public PassiveDataChannel(IpAndPort ipAndPort, IFtpDataChannelEvents listener) throws UnknownHostException, IOException {
+        super(listener);
         mIpAndPort = ipAndPort;
-        
-    }
-    
-    @Override
-    void connect() {
-        try {
-            mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
     }
 
     @Override
