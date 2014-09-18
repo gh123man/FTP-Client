@@ -10,13 +10,13 @@ import java.net.UnknownHostException;
  * 
  * @author brian
  */
-public abstract class FtpDataChannel {
+public abstract class DataChannel {
 
     /** Members */
     private volatile InputStream        mInputStream;
-    private final IFtpDataChannelEvents mListener;
+    private final IDataChannelEvents mListener;
 
-    protected FtpDataChannel(IFtpDataChannelEvents listener) throws UnknownHostException, IOException {
+    protected DataChannel(IDataChannelEvents listener) throws UnknownHostException, IOException {
         mListener = listener;
     }
 

@@ -1,6 +1,6 @@
 package com.floersch.brian.ftpClient;
 
-import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
+import com.floersch.brian.ftpChannels.IDataChannelEvents;
 
 /**
  * Class for managing an FTP client state
@@ -10,10 +10,10 @@ import com.floersch.brian.ftpChannels.IFtpDataChannelEvents;
 class FtpClientState {
 
     /** Members */
-    private boolean               mBlockInput   = false;
-    private boolean               mPassiveMode  = false;
-    private boolean               mInitialLogin = false;
-    private IFtpDataChannelEvents mCallback;
+    private boolean            mBlockInput   = false;
+    private boolean            mPassiveMode  = false;
+    private boolean            mInitialLogin = false;
+    private IDataChannelEvents mCallback;
 
     /**
      * Constructor
@@ -38,7 +38,7 @@ class FtpClientState {
         return this;
     }
 
-    public FtpClientState setOnDataChannelEventListener(IFtpDataChannelEvents callback) {
+    public FtpClientState setOnDataChannelEventListener(IDataChannelEvents callback) {
         mCallback = callback;
         return this;
     }
@@ -56,7 +56,7 @@ class FtpClientState {
         return mInitialLogin;
     }
 
-    public IFtpDataChannelEvents getDataChannelEventListener() {
+    public IDataChannelEvents getDataChannelEventListener() {
         return mCallback;
     }
 

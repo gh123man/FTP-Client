@@ -11,41 +11,42 @@ import java.net.UnknownHostException;
  * 
  * @author brian
  */
-public class FtpCmdChannel {
+public class CommandChannel {
 
     /** response codes */
-    public static final int            ABOUT_TO_OPEN_DATA_CHANNEL = 150;
-    public static final int            PORT_SUCCESS               = 200;
-    public static final int            READY_FOR_NEW_USER         = 220;
-    public static final int            CLOSING_DATA_CHANNEL       = 226;
-    public static final int            ENTERING_PASSIVE_MODE      = 227;
-    public static final int            USER_LOGGED_IN             = 230;
-    public static final int            UNAME_OK_NEED_PASS         = 331;
-    public static final int            CANNOT_OPEN_DATA_CHANNEL   = 425;
-    public static final int            NOT_LOGGED_IN              = 530;
+    public static final int             ABOUT_TO_OPEN_DATA_CHANNEL = 150;
+    public static final int             SUCCESS                    = 200;
+    public static final int             READY_FOR_NEW_USER         = 220;
+    public static final int             CLOSING_DATA_CHANNEL       = 226;
+    public static final int             ENTERING_PASSIVE_MODE      = 227;
+    public static final int             USER_LOGGED_IN             = 230;
+    public static final int             UNAME_OK_NEED_PASS         = 331;
+    public static final int             CANNOT_OPEN_DATA_CHANNEL   = 425;
+    public static final int             NOT_LOGGED_IN              = 530;
+    public static final int             FILE_NOT_FOUND             = 550;
 
     /** commands */
-    private static final String        CMD_FORMAT                 = "%s\r\n";
-    private static final String        USER                       = "USER %s";
-    private static final String        PASS                       = "PASS %s";
-    private static final String        PASSIVE                    = "PASV";
-    private static final String        LIST                       = "LIST";
-    private static final String        TYPE                       = "TYPE %s";
-    private static final String        I                          = "I";
-    private static final String        A                          = "A";
-    private static final String        CDUP                       = "CDUP";
-    private static final String        QUIT                       = "QUIT";
-    private static final String        PWD                        = "PWD";
-    private static final String        CD                         = "CWD %s";
-    private static final String        PORT                       = "PORT %s";
-    private static final String        RETRIEVE                   = "RETR %s";
+    private static final String         CMD_FORMAT                 = "%s\r\n";
+    private static final String         USER                       = "USER %s";
+    private static final String         PASS                       = "PASS %s";
+    private static final String         PASSIVE                    = "PASV";
+    private static final String         LIST                       = "LIST";
+    private static final String         TYPE                       = "TYPE %s";
+    private static final String         I                          = "I";
+    private static final String         A                          = "A";
+    private static final String         CDUP                       = "CDUP";
+    private static final String         QUIT                       = "QUIT";
+    private static final String         PWD                        = "PWD";
+    private static final String         CD                         = "CWD %s";
+    private static final String         PORT                       = "PORT %s";
+    private static final String         RETRIEVE                   = "RETR %s";
 
     /** Members */
-    private final Socket               mSocket;
-    private final InputStream          mInputStream;
-    private final PrintStream          mWriter;
-    private final IftpCmdChannelEvents mEventHandler;
-    private boolean                    mConnected;
+    private final Socket                mSocket;
+    private final InputStream           mInputStream;
+    private final PrintStream           mWriter;
+    private final ICommandChannelEvents mEventHandler;
+    private boolean                     mConnected;
 
     /**
      * Constructor.
@@ -56,12 +57,16 @@ public class FtpCmdChannel {
      * @throws UnknownHostException
      * @throws IOException
      */
-    public FtpCmdChannel(String address, int port, IftpCmdChannelEvents eventHandler) throws UnknownHostException, IOException {
+    public CommandChannel(String address, int port, ICommandChannelEvents eventHandler) throws UnknownHostException, IOException {
         mSocket = new Socket(address, port);
         mWriter = new PrintStream(mSocket.getOutputStream());
         mInputStream = mSocket.getInputStream();
         mConnected = true;
         mEventHandler = eventHandler;
+    }
+
+    public String getIpAddress() {
+        return mSocket.getLocalAddress().getHostAddress();
     }
 
     /**
@@ -189,7 +194,7 @@ public class FtpCmdChannel {
     public void cd(String dir) {
         write(String.format(CD, dir));
     }
-    
+
     public void retrieve(String file) {
         write(String.format(RETRIEVE, file));
     }

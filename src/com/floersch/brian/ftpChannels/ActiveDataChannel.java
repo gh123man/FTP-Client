@@ -10,13 +10,13 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-public class ActiveDataChannel extends FtpDataChannel {
+public class ActiveDataChannel extends DataChannel {
 
     private static final String   IP_PORT_FORMAT = "%d,%d,%d,%d,%d,%d";
 
     private volatile ServerSocket mSocket;
 
-    public ActiveDataChannel(IFtpDataChannelEvents listener) throws UnknownHostException, IOException {
+    public ActiveDataChannel(IDataChannelEvents listener) throws UnknownHostException, IOException {
         super(listener);
         mSocket = new ServerSocket(0);
     }
@@ -45,7 +45,6 @@ public class ActiveDataChannel extends FtpDataChannel {
     public static byte[] getIpFromPrimaryNetworkInterface() {
 
         try {
-
             Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
             while (networkInterfaces.hasMoreElements()) {

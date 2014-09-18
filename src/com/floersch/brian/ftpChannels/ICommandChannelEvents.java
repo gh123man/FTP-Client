@@ -5,7 +5,7 @@ package com.floersch.brian.ftpChannels;
  * 
  * @author brian
  */
-public interface IftpCmdChannelEvents {
+public interface ICommandChannelEvents {
 
     /**
      * Notifies the end of a response

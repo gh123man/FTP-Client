@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PassiveDataChannel extends FtpDataChannel {
+public class PassiveDataChannel extends DataChannel {
 
     /** constants */
     private static final String         FIND_IP_AND_PORT = "\\((\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?)\\)";
@@ -16,7 +16,7 @@ public class PassiveDataChannel extends FtpDataChannel {
     private final IpAndPort mIpAndPort;
     
     
-    public PassiveDataChannel(IpAndPort ipAndPort, IFtpDataChannelEvents listener) throws UnknownHostException, IOException {
+    public PassiveDataChannel(IpAndPort ipAndPort, IDataChannelEvents listener) throws UnknownHostException, IOException {
         super(listener);
         mIpAndPort = ipAndPort;
         mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
