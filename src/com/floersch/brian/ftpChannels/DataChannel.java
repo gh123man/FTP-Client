@@ -7,33 +7,39 @@ import java.io.OutputStream;
 /**
  * Class for handling an FTP data channel
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public abstract class DataChannel {
 
     /** Members */
-    private volatile InputStream mInputStream;
+    private InputStream mInputStream;
 
-    abstract InputStream getInputStream();
+    /**
+     * Gets the active input stream
+     * @return
+     * @throws IOException
+     */
+    abstract InputStream getInputStream() throws IOException;
 
-    public void openStream() {
+    /**
+     * Opens the input stream
+     * @throws IOException
+     */
+    public void openStream() throws IOException {
         mInputStream = getInputStream();
     }
 
     /**
      * reads the data stream from the server
+     * @throws IOException 
      */
-    public void copyStream(OutputStream outStream) {
-        try {
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = mInputStream.read(buffer)) != -1) {
-                outStream.write(buffer, 0, len);
-            }
-            mInputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace(); // TODO
+    public void copyStream(OutputStream outStream) throws IOException {
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = mInputStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, len);
         }
+        mInputStream.close();
 
     }
 

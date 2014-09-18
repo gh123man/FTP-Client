@@ -10,30 +10,55 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
+/**
+ * Class for handling an active FTP data channel
+ * 
+ * @author Brian Floersch (bpf4935@rit.edu)
+ */
 public class ActiveDataChannel extends DataChannel {
 
-    private static final String   IP_PORT_FORMAT = "%d,%d,%d,%d,%d,%d";
+    /** Constants */
+    private static final String IP_PORT_FORMAT = "%d,%d,%d,%d,%d,%d";
 
-    private volatile ServerSocket mSocket;
+    /** Members */
+    private ServerSocket        mSocket;
 
+    /**
+     * Constructor
+     * 
+     * @throws UnknownHostException
+     * @throws IOException
+     */
     public ActiveDataChannel() throws UnknownHostException, IOException {
         mSocket = new ServerSocket(0);
     }
 
-    public synchronized IpAndPort getIpAndFreePort() throws IOException {
+    /**
+     * gets the current IP for usage and a free port.
+     * 
+     * @return
+     * @throws IOException
+     */
+    public IpAndPort getIpAndFreePort() throws IOException {
         return new IpAndPort(getIpFromPrimaryNetworkInterface(), mSocket.getLocalPort());
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.floersch.brian.ftpChannels.DataChannel#getInputStream()
+     */
     @Override
-    InputStream getInputStream() {
-        try {
-            return mSocket.accept().getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();// TODO
-        }
-        return null;
+    InputStream getInputStream() throws IOException {
+        return mSocket.accept().getInputStream();
     }
 
+    /**
+     * Encodes an IP and port combo into the FTP format
+     * 
+     * @param ipAndPort
+     * @return
+     */
     public static String encodeIpAndPort(IpAndPort ipAndPort) {
         byte[] ip = ipAndPort.getRawIp();
         int lhPortFragmnet = (int) Math.floor(ipAndPort.getPort() / 256);
@@ -41,29 +66,29 @@ public class ActiveDataChannel extends DataChannel {
         return String.format(IP_PORT_FORMAT, (int) 255 & ip[0], (int) 255 & ip[1], (int) 255 & ip[2], (int) 255 & ip[3], lhPortFragmnet, rhPortFragmnet);
     }
 
-    public static byte[] getIpFromPrimaryNetworkInterface() {
+    /**
+     * gets the current IP for the primary network interface
+     * 
+     * @return
+     * @throws SocketException
+     */
+    public static byte[] getIpFromPrimaryNetworkInterface() throws SocketException {
 
-        try {
-            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
-            while (networkInterfaces.hasMoreElements()) {
+        while (networkInterfaces.hasMoreElements()) {
 
-                NetworkInterface nextElement = networkInterfaces.nextElement();
-                Enumeration<InetAddress> addresses = nextElement.getInetAddresses();
+            NetworkInterface nextElement = networkInterfaces.nextElement();
+            Enumeration<InetAddress> addresses = nextElement.getInetAddresses();
 
-                while (addresses.hasMoreElements()) {
-                    InetAddress address = addresses.nextElement();
-                    if (address instanceof Inet4Address && !address.isLoopbackAddress() && address.isSiteLocalAddress()) {
-                        return address.getAddress();
-                    }
+            while (addresses.hasMoreElements()) {
+                InetAddress address = addresses.nextElement();
+                if (address instanceof Inet4Address && !address.isLoopbackAddress() && address.isSiteLocalAddress()) {
+                    return address.getAddress();
                 }
             }
-
-        } catch (SocketException e) {
-            e.printStackTrace(); // TODO
         }
         return null;
-
     }
 
 }

@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 /**
  * Class for handling an FTP Command channel connection
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public class CommandChannel {
 
@@ -66,10 +66,20 @@ public class CommandChannel {
         mEventHandler = eventHandler;
     }
 
+    /**
+     * gets the host IP
+     * 
+     * @return
+     */
     public String getIpAddress() {
         return mSocket.getLocalAddress().getHostAddress();
     }
-    
+
+    /**
+     * sets debug mode
+     * 
+     * @param state
+     */
     public void setDebugMode(boolean state) {
         mDebug = state;
     }
@@ -89,23 +99,19 @@ public class CommandChannel {
 
     /**
      * reads the current stream
+     * 
+     * @throws IOException
      */
-    public void readStream() {
-        try {
+    public void readStream() throws IOException {
+        FtpRawResponse response;
 
-            FtpRawResponse response;
-
-            while (mConnected) {
-                response = parseStream(); // throws
-                if (response == null) {
-                    mEventHandler.onDisconnect();
-                    return;
-                }
-                mEventHandler.onResponse(response.getCode(), response.getResponse());
+        while (mConnected) {
+            response = parseStream();
+            if (response == null) {
+                mEventHandler.onDisconnect();
+                return;
             }
-
-        } catch (IOException e) {
-            e.printStackTrace(); // for now
+            mEventHandler.onResponse(response.getCode(), response.getResponse());
         }
     }
 

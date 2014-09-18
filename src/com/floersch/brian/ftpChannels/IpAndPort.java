@@ -3,7 +3,7 @@ package com.floersch.brian.ftpChannels;
 /**
  * Class maintaining an IP and Port pair
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public class IpAndPort {
 
@@ -43,6 +43,10 @@ public class IpAndPort {
         return mIp;
     }
 
+    /**
+     * gets the raw IP address
+     * @return
+     */
     public byte[] getRawIp() {
         if (mRawIp == null) {
             return ipStringToArray(mIp);
@@ -59,10 +63,20 @@ public class IpAndPort {
         return mPort;
     }
 
+    /**
+     * Converts a raw IP to a string
+     * @param ip
+     * @return
+     */
     public static String ipArrayToString(byte[] ip) {
         return String.format(IP_FORMAT, ip[0], ip[1], ip[2], ip[3]);
     }
 
+    /**
+     * converts a string to a raw IP
+     * @param ip
+     * @return
+     */
     public static byte[] ipStringToArray(String ip) {
         String[] ipSplit = ip.split("\\.");
         return new byte[] { (byte) Integer.parseInt(ipSplit[0]), (byte) Integer.parseInt(ipSplit[1]), (byte) Integer.parseInt(ipSplit[2]), (byte) Integer.parseInt(ipSplit[3]) };

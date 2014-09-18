@@ -3,7 +3,7 @@ package com.floersch.brian.ftpChannels;
 /**
  * Interface outlining events from an FTP command channel
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public interface ICommandChannelEvents {
 
@@ -19,7 +19,11 @@ public interface ICommandChannelEvents {
      * Notifies a disconnect
      */
     void onDisconnect();
-    
+
+    /**
+     * handles a debug message
+     * @param message
+     */
     void onDebugMessage(String message);
 
 }

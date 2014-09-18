@@ -3,8 +3,7 @@ package com.floersch.brian.ftpChannels;
 /**
  * A class representing a response code and its message body
  * 
- * @author brian
- * 
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public class FtpRawResponse {
 

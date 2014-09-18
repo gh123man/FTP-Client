@@ -3,7 +3,7 @@ package com.floersch.brian.ftpClient;
 /**
  * Class for managing an FTP client state
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 class FtpClientState {
 

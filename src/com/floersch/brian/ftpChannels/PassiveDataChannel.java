@@ -7,27 +7,38 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Class for handling a passive FTP data channel
+ * 
+ * @author Brian Floersch (bpf4935@rit.edu)
+ */
 public class PassiveDataChannel extends DataChannel {
 
     /** constants */
     private static final String FIND_IP_AND_PORT = "\\((\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?)\\)";
 
+    /** Members */
     private Socket              mSocket;
     private final IpAndPort     mIpAndPort;
 
+    /**
+     * Constructor.
+     * @param ipAndPort
+     * @throws UnknownHostException
+     * @throws IOException
+     */
     public PassiveDataChannel(IpAndPort ipAndPort) throws UnknownHostException, IOException {
         mIpAndPort = ipAndPort;
         mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.floersch.brian.ftpChannels.DataChannel#getInputStream()
+     */
     @Override
-    InputStream getInputStream() {
-        try {
-            return mSocket.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace(); // TODO
-        }
-        return null;
+    InputStream getInputStream() throws IOException {
+        return mSocket.getInputStream();
     }
 
     /**

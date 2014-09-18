@@ -8,7 +8,7 @@ import com.floersch.brian.ftpClient.IFtpClientEvents;
 /**
  * FTP command line interface
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public class FTP implements IFtpClientEvents {
 
@@ -94,8 +94,17 @@ public class FTP implements IFtpClientEvents {
         try {
             return mReader.readLine();
         } catch (IOException e) {
-            e.printStackTrace(); // TODO
+            onExceptionThrown(e);
         }
         return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see com.floersch.brian.ftpClient.IFtpClientEvents#onExceptionThrown(java.lang.Exception)
+     */
+    @Override
+    public void onExceptionThrown(Exception e) {
+        System.err.print(e.getMessage());
     }
 }

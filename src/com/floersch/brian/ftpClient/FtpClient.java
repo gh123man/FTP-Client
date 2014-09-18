@@ -17,49 +17,55 @@ import com.floersch.brian.ftpChannels.PassiveDataChannel;
 /**
  * Manages connections to an FTP server
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public class FtpClient implements ICommandChannelEvents {
 
     /** Messages */
-    private static final String TRYING            = "Trying %s...";
-    private static final String CONNECTED         = "Connected to %s";
-    private static final String FAIL_TO_CONNECT   = "Failed to connect to sever";
-    private static final String NAME              = "Name:";
-    private static final String PASSWORD          = "Password:";
-    private static final String PROMPT            = "ftp>:";
-    private static final String DISCONNECTED      = "\nConnection closed by foreign host.";
-    private static final String AMBIGUOUS_COMMAND = "?Ambiguous command";
-    private static final String PASSIVE_MODE      = "Passive mode %s";
-    private static final String DEBUG_MODE        = "Debug mode %s";
-    private static final String ON                = "on";
-    private static final String OFF               = "off";
+    private static final String  TRYING            = "Trying %s...";
+    private static final String  CONNECTED         = "Connected to %s";
+    private static final String  FAIL_TO_CONNECT   = "Failed to connect to sever";
+    private static final String  NAME              = "Name:";
+    private static final String  PASSWORD          = "Password:";
+    private static final String  PROMPT            = "ftp>:";
+    private static final String  DISCONNECTED      = "\nConnection closed by foreign host.";
+    private static final String  AMBIGUOUS_COMMAND = "?Ambiguous command";
+    private static final String  PASSIVE_MODE      = "Passive mode %s";
+    private static final String  DEBUG_MODE        = "Debug mode %s";
+    private static final String  ON                = "on";
+    private static final String  OFF               = "off";
 
     /** user commands */
-    private static final String DIR               = "dir";
-    private static final String LS                = "ls";
-    private static final String ASCII             = "ascii";
-    private static final String BINARY            = "binary";
-    private static final String QUIT              = "quit";
-    private static final String EXIT              = "exit";
-    private static final String CDUP              = "cdup";
-    private static final String PWD               = "pwd";
-    private static final String PASSIVE           = "passive";
-    private static final String USER              = "user";
-    private static final String CD                = "cd";
-    private static final String GET               = "get";
-    private static final String DEBUG             = "debug";
+    private static final String  DIR               = "dir";
+    private static final String  LS                = "ls";
+    private static final String  ASCII             = "ascii";
+    private static final String  BINARY            = "binary";
+    private static final String  QUIT              = "quit";
+    private static final String  EXIT              = "exit";
+    private static final String  CDUP              = "cdup";
+    private static final String  PWD               = "pwd";
+    private static final String  PASSIVE           = "passive";
+    private static final String  USER              = "user";
+    private static final String  CD                = "cd";
+    private static final String  GET               = "get";
+    private static final String  DEBUG             = "debug";
+    private static final String  HELP              = "help";
 
     /** other constants */
-    private static final String FIND_CMD          = "(.*?)\\s";
-    private static final String PATH_FORMAT       = "%s/%s";
-    private static final String DEBUG_FORMAT      = "---> %s";
+    private static final String  FIND_CMD          = "(.*?)\\s";
+    private static final String  PATH_FORMAT       = "%s/%s";
+    private static final String  DEBUG_FORMAT      = "---> %s";
+    public static final String[] HELP_MESSAGE      = { "ascii      --> Set ASCII transfer type", "binary     --> Set binary transfer type", "cd <path>  --> Change the remote working directory",
+            "cdup       --> Change the remote working directory to the", "               parent directory (i.e., cd ..)", "debug      --> Toggle debug mode",
+            "dir        --> List the contents of the remote directory", "get path   --> Get a remote file", "help       --> Displays this text", "passive    --> Toggle passive/active mode",
+            "put path   --> Transfer the specified file to the server", "pwd        --> Print the working directory on the server", "quit       --> Close the connection to the server and terminate",
+            "user login --> Specify the user name (will prompt for password)" };
 
     /** Members */
-    private FtpClientState      mState;
-    private IFtpClientEvents    mEventHandler;
-    private CommandChannel      mCmdChannel;
-    private DataChannel         mDataChannel;
+    private FtpClientState       mState;
+    private IFtpClientEvents     mEventHandler;
+    private CommandChannel       mCmdChannel;
+    private DataChannel          mDataChannel;
 
     /**
      * Constructor
@@ -75,6 +81,11 @@ public class FtpClient implements ICommandChannelEvents {
         mState = new FtpClientState();
     }
 
+    /**
+     * Connects to the FTP server
+     * @param address
+     * @param port
+     */
     public void connect(String address, int port) {
         mEventHandler.println(String.format(TRYING, address));
 
@@ -88,20 +99,36 @@ public class FtpClient implements ICommandChannelEvents {
 
         if (mCmdChannel != null) {
             mEventHandler.println(String.format(CONNECTED, mCmdChannel.getIpAddress()));
-            mCmdChannel.readStream();
+            try {
+                mCmdChannel.readStream();
+            } catch (IOException e) {
+                mEventHandler.onExceptionThrown(e);
+            }
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.floersch.brian.ftpChannels.ICommandChannelEvents#onDisconnect()
+     */
     @Override
     public void onDisconnect() {
         mEventHandler.println(DISCONNECTED);
     }
-
+    
+    /*
+     * (non-Javadoc)
+     * @see com.floersch.brian.ftpChannels.ICommandChannelEvents#onDebugMessage(java.lang.String)
+     */
     @Override
     public void onDebugMessage(String message) {
         mEventHandler.print(String.format(DEBUG_FORMAT, message));
     }
 
+    /*
+     * (non-Javadoc)
+     * @see com.floersch.brian.ftpChannels.ICommandChannelEvents#onResponse(int, java.lang.String)
+     */
     @Override
     public void onResponse(int code, String response) {
 
@@ -155,7 +182,11 @@ public class FtpClient implements ICommandChannelEvents {
 
             case CommandChannel.ABOUT_TO_OPEN_DATA_CHANNEL:
                 mEventHandler.print(response);
-                mDataChannel.openStream();
+                try {
+                    mDataChannel.openStream();
+                } catch (IOException e) {
+                    mEventHandler.onExceptionThrown(e);
+                }
                 mState.getDataChannelClientEventListener().onChannelOpen();
                 mState.setDataChannelClientEventListener(null);
                 responseHandled = true;
@@ -211,8 +242,13 @@ public class FtpClient implements ICommandChannelEvents {
                     @Override
                     public void onChannelOpen() {
                         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-                        mDataChannel.copyStream(outStream);
-                        mEventHandler.print(outStream.toString());
+                        try {
+                            mDataChannel.copyStream(outStream);
+                            mEventHandler.print(outStream.toString());
+                        } catch (IOException e) {
+                            mEventHandler.onExceptionThrown(e);
+                        }
+
                     }
                 });
                 requestOpenDataChannel();
@@ -237,7 +273,9 @@ public class FtpClient implements ICommandChannelEvents {
                             mDataChannel.copyStream(outStream);
 
                         } catch (FileNotFoundException e) {
-                            e.printStackTrace(); // TODO
+                            mEventHandler.onExceptionThrown(e);
+                        } catch (IOException e) {
+                            mEventHandler.onExceptionThrown(e);
                         }
                     }
                 });
@@ -288,6 +326,11 @@ public class FtpClient implements ICommandChannelEvents {
                 prompt();
                 break;
 
+            case HELP:
+                printHelp();
+                prompt();
+                break;
+
             case EXIT:
             case QUIT:
                 mState.setBlockUserInput(true);
@@ -320,7 +363,7 @@ public class FtpClient implements ICommandChannelEvents {
         try {
             mDataChannel = new PassiveDataChannel(ipAndPort);
         } catch (IOException e) {
-            e.printStackTrace(); // TODO
+             mEventHandler.onExceptionThrown(e);
         }
     }
 
@@ -335,14 +378,26 @@ public class FtpClient implements ICommandChannelEvents {
         }
     }
 
+    /**
+     * Starts up the active data channel
+     */
     private void startActiveDataChannel() {
         try {
             mDataChannel = new ActiveDataChannel();
             mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel) mDataChannel).getIpAndFreePort()));
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            mEventHandler.onExceptionThrown(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            mEventHandler.onExceptionThrown(e);
+        }
+    }
+
+    /**
+     * prints the help message
+     */
+    private void printHelp() {
+        for (String line : HELP_MESSAGE) {
+            mEventHandler.println(line);
         }
     }
 

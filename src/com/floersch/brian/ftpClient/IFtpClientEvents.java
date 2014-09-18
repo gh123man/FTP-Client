@@ -1,9 +1,9 @@
 package com.floersch.brian.ftpClient;
 
 /**
- * Interface for handling Ftp client events
+ * Interface for handling FTP client events
  * 
- * @author brian
+ * @author Brian Floersch (bpf4935@rit.edu)
  */
 public interface IFtpClientEvents {
 
@@ -27,4 +27,10 @@ public interface IFtpClientEvents {
      * @return
      */
     String requestInput();
+
+    /**
+     * handles an exception
+     * @param e
+     */
+    void onExceptionThrown(Exception e);
 }
