@@ -31,6 +31,7 @@ public class FtpClient implements ICommandChannelEvents {
     private static final String DISCONNECTED      = "\nConnection closed by foreign host.";
     private static final String AMBIGUOUS_COMMAND = "?Ambiguous command";
     private static final String PASSIVE_MODE      = "Passive mode %s";
+    private static final String DEBUG_MODE        = "Debug mode %s";
     private static final String ON                = "on";
     private static final String OFF               = "off";
 
@@ -47,10 +48,12 @@ public class FtpClient implements ICommandChannelEvents {
     private static final String USER              = "user";
     private static final String CD                = "cd";
     private static final String GET               = "get";
+    private static final String DEBUG             = "debug";
 
     /** other constants */
     private static final String FIND_CMD          = "(.*?)\\s";
-    public static final String  PATH_FORMAT       = "%s/%s";
+    private static final String PATH_FORMAT       = "%s/%s";
+    private static final String DEBUG_FORMAT      = "---> %s";
 
     /** Members */
     private FtpClientState      mState;
@@ -95,6 +98,11 @@ public class FtpClient implements ICommandChannelEvents {
     }
 
     @Override
+    public void onDebugMessage(String message) {
+        mEventHandler.print(String.format(DEBUG_FORMAT, message));
+    }
+
+    @Override
     public void onResponse(int code, String response) {
 
         boolean responseHandled = false;
@@ -127,10 +135,19 @@ public class FtpClient implements ICommandChannelEvents {
 
             case CommandChannel.ENTERING_PASSIVE_MODE:
                 openPassiveDataChannel(PassiveDataChannel.decodePasv(response));
-                mState.getDataChannelClientEventListener().onReady();
+                if (mState.getDataChannelClientEventListener() != null) {
+                    mEventHandler.print(response);
+                    mState.getDataChannelClientEventListener().onReady();
+                    responseHandled = true;
+                }
                 break;
 
             case CommandChannel.SUCCESS:
+                if (mState.getDataChannelClientEventListener() != null) {
+                    mEventHandler.print(response);
+                    mState.getDataChannelClientEventListener().onReady();
+                    responseHandled = true;
+                }
                 break;
 
             case CommandChannel.CANNOT_OPEN_DATA_CHANNEL:
@@ -140,6 +157,7 @@ public class FtpClient implements ICommandChannelEvents {
                 mEventHandler.print(response);
                 mDataChannel.openStream();
                 mState.getDataChannelClientEventListener().onChannelOpen();
+                mState.setDataChannelClientEventListener(null);
                 responseHandled = true;
                 break;
 
@@ -184,7 +202,6 @@ public class FtpClient implements ICommandChannelEvents {
             case DIR:
                 mState.setBlockUserInput(true);
 
-                // setup onConnect callback
                 mState.setDataChannelClientEventListener(new IDataChannelClientEvents() {
                     @Override
                     public void onReady() {
@@ -206,7 +223,6 @@ public class FtpClient implements ICommandChannelEvents {
 
                 final String fileName = args;
 
-                // setup onConnect callback
                 mState.setDataChannelClientEventListener(new IDataChannelClientEvents() {
                     @Override
                     public void onReady() {
@@ -261,6 +277,17 @@ public class FtpClient implements ICommandChannelEvents {
                 mCmdChannel.cd(args);
                 break;
 
+            case DEBUG:
+                if (mState.setDebugMode(!mState.getDebugMode()).getDebugMode()) {
+                    mEventHandler.println(String.format(DEBUG_MODE, ON));
+                    mCmdChannel.setDebugMode(true);
+                } else {
+                    mEventHandler.println(String.format(DEBUG_MODE, OFF));
+                    mCmdChannel.setDebugMode(false);
+                }
+                prompt();
+                break;
+
             case EXIT:
             case QUIT:
                 mState.setBlockUserInput(true);
@@ -312,7 +339,6 @@ public class FtpClient implements ICommandChannelEvents {
         try {
             mDataChannel = new ActiveDataChannel();
             mCmdChannel.setActiveMode(ActiveDataChannel.encodeIpAndPort(((ActiveDataChannel) mDataChannel).getIpAndFreePort()));
-            mState.getDataChannelClientEventListener().onReady();
         } catch (UnknownHostException e) {
             e.printStackTrace();
         } catch (IOException e) {

@@ -19,5 +19,7 @@ public interface ICommandChannelEvents {
      * Notifies a disconnect
      */
     void onDisconnect();
+    
+    void onDebugMessage(String message);
 
 }

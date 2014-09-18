@@ -11,14 +11,8 @@ class FtpClientState {
     private boolean                  mBlockInput   = false;
     private boolean                  mPassiveMode  = false;
     private boolean                  mInitialLogin = false;
+    private boolean                  mDebugMode    = false;
     private IDataChannelClientEvents mCallback;
-
-    /**
-     * Constructor
-     * 
-     * @param state
-     * @return
-     */
 
     /** Setters */
     public FtpClientState setBlockUserInput(boolean state) {
@@ -33,6 +27,11 @@ class FtpClientState {
 
     public FtpClientState setInitialLoginComplete(boolean state) {
         mInitialLogin = state;
+        return this;
+    }
+
+    public FtpClientState setDebugMode(boolean state) {
+        mDebugMode = state;
         return this;
     }
 
@@ -52,6 +51,10 @@ class FtpClientState {
 
     public boolean getInitialLoginComplete() {
         return mInitialLogin;
+    }
+
+    public boolean getDebugMode() {
+        return mDebugMode;
     }
 
     public IDataChannelClientEvents getDataChannelClientEventListener() {

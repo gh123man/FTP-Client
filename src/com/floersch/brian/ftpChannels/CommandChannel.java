@@ -47,6 +47,7 @@ public class CommandChannel {
     private final PrintStream           mWriter;
     private final ICommandChannelEvents mEventHandler;
     private boolean                     mConnected;
+    private boolean                     mDebug;
 
     /**
      * Constructor.
@@ -68,6 +69,10 @@ public class CommandChannel {
     public String getIpAddress() {
         return mSocket.getLocalAddress().getHostAddress();
     }
+    
+    public void setDebugMode(boolean state) {
+        mDebug = state;
+    }
 
     /**
      * writes a command to the server
@@ -75,7 +80,11 @@ public class CommandChannel {
      * @param command
      */
     private void write(String command) {
-        mWriter.print(String.format(CMD_FORMAT, command));
+        String rawFtpCommnad = String.format(CMD_FORMAT, command);
+        if (mDebug) {
+            mEventHandler.onDebugMessage(rawFtpCommnad);
+        }
+        mWriter.print(rawFtpCommnad);
     }
 
     /**
