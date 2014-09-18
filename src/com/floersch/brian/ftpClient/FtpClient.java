@@ -242,7 +242,7 @@ public class FtpClient implements ICommandChannelEvents {
             case DIR:
                 mState.setBlockUserInput(true);
 
-                mState.setDataChannelClientEventListener(new IDataChannelClientEvents() {
+                mState.setDataChannelClientEventListener(new IDataChannelClientEventListener() {
                     @Override
                     public void onReady() {
                         mCmdChannel.list();
@@ -268,7 +268,7 @@ public class FtpClient implements ICommandChannelEvents {
 
                 final String fileName = args;
 
-                mState.setDataChannelClientEventListener(new IDataChannelClientEvents() {
+                mState.setDataChannelClientEventListener(new IDataChannelClientEventListener() {
                     @Override
                     public void onReady() {
                         mCmdChannel.retrieve(fileName);

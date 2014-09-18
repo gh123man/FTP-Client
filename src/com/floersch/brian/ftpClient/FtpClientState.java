@@ -12,7 +12,7 @@ class FtpClientState {
     private boolean                  mPassiveMode  = false;
     private boolean                  mInitialLogin = false;
     private boolean                  mDebugMode    = false;
-    private IDataChannelClientEvents mCallback;
+    private IDataChannelClientEventListener mCallback;
 
     /** Setters */
     public FtpClientState setBlockUserInput(boolean state) {
@@ -35,7 +35,7 @@ class FtpClientState {
         return this;
     }
 
-    public FtpClientState setDataChannelClientEventListener(IDataChannelClientEvents callback) {
+    public FtpClientState setDataChannelClientEventListener(IDataChannelClientEventListener callback) {
         mCallback = callback;
         return this;
     }
@@ -57,7 +57,7 @@ class FtpClientState {
         return mDebugMode;
     }
 
-    public IDataChannelClientEvents getDataChannelClientEventListener() {
+    public IDataChannelClientEventListener getDataChannelClientEventListener() {
         return mCallback;
     }
 

@@ -63,12 +63,21 @@ public class ActiveDataChannel extends DataChannel {
         byte[] ip = ipAndPort.getRawIp();
         int lhPortFragmnet = (int) Math.floor(ipAndPort.getPort() / 256);
         int rhPortFragmnet = ipAndPort.getPort() % 256;
-        return String.format(IP_PORT_FORMAT, (int) 255 & ip[0], (int) 255 & ip[1], (int) 255 & ip[2], (int) 255 & ip[3], lhPortFragmnet, rhPortFragmnet);
+        return String.format(IP_PORT_FORMAT, b2i(ip[0]), b2i(ip[1]), b2i(ip[2]), b2i(ip[3]), lhPortFragmnet, rhPortFragmnet);
+    }
+    
+    /**
+     * Helper method to assist normalizing an IP
+     * @param b
+     * @return
+     */
+    private static int b2i(byte b) {
+        return (int) 255 & b;
     }
 
     /**
      * Gets the current IP for the primary network interface.
-     * This will get the bets IP if you are behind a router/firewall.
+     * This will get the best IP if you are behind a router/firewall.
      * 
      * @return
      * @throws SocketException

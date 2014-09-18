@@ -46,7 +46,6 @@ public class CommandChannel {
     private final InputStream           mInputStream;
     private final PrintStream           mWriter;
     private final ICommandChannelEvents mEventHandler;
-    private boolean                     mConnected;
     private boolean                     mDebug;
 
     /**
@@ -62,7 +61,6 @@ public class CommandChannel {
         mSocket = new Socket(address, port);
         mWriter = new PrintStream(mSocket.getOutputStream());
         mInputStream = mSocket.getInputStream();
-        mConnected = true;
         mEventHandler = eventHandler;
     }
 
@@ -105,14 +103,14 @@ public class CommandChannel {
     public void readStream() throws IOException {
         FtpRawResponse response;
 
-        while (mConnected) {
+        while (true) {
             response = parseStream();
             if (response == null) {
-                mEventHandler.onDisconnect();
-                return;
+                break;
             }
             mEventHandler.onResponse(response.getCode(), response.getResponse());
         }
+        mEventHandler.onDisconnect();
     }
 
     /**

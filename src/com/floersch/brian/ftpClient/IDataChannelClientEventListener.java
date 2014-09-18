@@ -5,7 +5,7 @@ package com.floersch.brian.ftpClient;
  * 
  * @author Brian Floersch (bpf4935@rit.edu)
  */
-public interface IDataChannelClientEvents {
+public interface IDataChannelClientEventListener {
 
     /**
      * Called when the data channel is ready
