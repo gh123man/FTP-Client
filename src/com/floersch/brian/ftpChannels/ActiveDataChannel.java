@@ -16,8 +16,7 @@ public class ActiveDataChannel extends DataChannel {
 
     private volatile ServerSocket mSocket;
 
-    public ActiveDataChannel(IDataChannelEvents listener) throws UnknownHostException, IOException {
-        super(listener);
+    public ActiveDataChannel() throws UnknownHostException, IOException {
         mSocket = new ServerSocket(0);
     }
 

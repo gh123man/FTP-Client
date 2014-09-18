@@ -3,7 +3,6 @@ package com.floersch.brian.ftpChannels;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.UnknownHostException;
 
 /**
  * Class for handling an FTP data channel
@@ -14,21 +13,11 @@ public abstract class DataChannel {
 
     /** Members */
     private volatile InputStream        mInputStream;
-    private final IDataChannelEvents mListener;
-
-    protected DataChannel(IDataChannelEvents listener) throws UnknownHostException, IOException {
-        mListener = listener;
-    }
 
     abstract InputStream getInputStream();
 
-    public void initlize() {
-        mListener.onConnect(this);
+    public void openStream() {
         mInputStream = getInputStream();
-    }
-
-    public void onChannelOpen() {
-        mListener.onChannelOpen(this);
     }
 
     /**

@@ -16,8 +16,7 @@ public class PassiveDataChannel extends DataChannel {
     private final IpAndPort mIpAndPort;
     
     
-    public PassiveDataChannel(IpAndPort ipAndPort, IDataChannelEvents listener) throws UnknownHostException, IOException {
-        super(listener);
+    public PassiveDataChannel(IpAndPort ipAndPort) throws UnknownHostException, IOException {
         mIpAndPort = ipAndPort;
         mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
     }
