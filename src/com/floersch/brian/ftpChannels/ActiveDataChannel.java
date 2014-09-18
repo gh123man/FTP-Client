@@ -101,6 +101,7 @@ public class ActiveDataChannel extends DataChannel {
             }
         }
         
+        //Fall back to local address if no other addresses are found
         if (finalAddress == null) {
             finalAddress = InetAddress.getLocalHost().getAddress();
         }

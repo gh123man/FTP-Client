@@ -232,7 +232,9 @@ public class FtpClient implements ICommandChannelEvents {
         String args = null;
         if (input.contains(" ")) {
             command = input.split(" ")[0];
-            args = input.split(FIND_CMD)[1];
+            try {
+                args = input.split(FIND_CMD)[1];
+            } catch (ArrayIndexOutOfBoundsException e) {}
         } else {
             command = input;
         }
