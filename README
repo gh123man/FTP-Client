@@ -1,4 +1,0 @@
-
-   ftp.mozilla.org / archive.mozilla.org - files are in /pub/mozilla.org
-
-   releases.mozilla.org now points to our CDN distribution network and no longer works for FTP traffic
