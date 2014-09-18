@@ -67,13 +67,16 @@ public class ActiveDataChannel extends DataChannel {
     }
 
     /**
-     * gets the current IP for the primary network interface
+     * Gets the current IP for the primary network interface.
+     * This will get the bets IP if you are behind a router/firewall.
      * 
      * @return
      * @throws SocketException
+     * @throws UnknownHostException 
      */
-    public static byte[] getIpFromPrimaryNetworkInterface() throws SocketException {
+    public static byte[] getIpFromPrimaryNetworkInterface() throws SocketException, UnknownHostException {
 
+        byte[] finalAddress = null;
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
 
         while (networkInterfaces.hasMoreElements()) {
@@ -84,11 +87,15 @@ public class ActiveDataChannel extends DataChannel {
             while (addresses.hasMoreElements()) {
                 InetAddress address = addresses.nextElement();
                 if (address instanceof Inet4Address && !address.isLoopbackAddress() && address.isSiteLocalAddress()) {
-                    return address.getAddress();
+                    finalAddress = address.getAddress();
                 }
             }
         }
-        return null;
+        
+        if (finalAddress == null) {
+            finalAddress = InetAddress.getLocalHost().getAddress();
+        }
+        return finalAddress;
     }
 
 }
