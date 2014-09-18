@@ -1,6 +1,3 @@
-
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,6 +15,7 @@ public class FTP implements IFtpClientEvents {
     /** Constants */
     public static final String NO_SERVER    = "Please specify a server to connect to.";
     public static final String BAD_PORT     = "Invalid port";
+    public static final String USAGE        = "usage: FTP host-name [port]";
     public static final int    DEFAULT_PORT = 21;
 
     /** Members */
@@ -31,18 +29,19 @@ public class FTP implements IFtpClientEvents {
     public static void main(String[] args) {
 
         int port = DEFAULT_PORT;
-        
 
-        if (args == null) {
+        if (args.length == 0) {
             System.out.println(NO_SERVER);
+            System.out.println(USAGE);
             return;
         }
 
         if (args.length == 2) {
             try {
-                port = Integer.parseInt(args[2]);
+                port = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                System.out.println(NO_SERVER);
+                System.out.println(BAD_PORT);
+                System.out.println(USAGE);
                 return;
             }
 

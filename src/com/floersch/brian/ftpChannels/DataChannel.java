@@ -12,7 +12,7 @@ import java.io.OutputStream;
 public abstract class DataChannel {
 
     /** Members */
-    private volatile InputStream        mInputStream;
+    private volatile InputStream mInputStream;
 
     abstract InputStream getInputStream();
 

@@ -10,12 +10,11 @@ import java.util.regex.Pattern;
 public class PassiveDataChannel extends DataChannel {
 
     /** constants */
-    private static final String         FIND_IP_AND_PORT = "\\((\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?)\\)";
-    
-    private Socket mSocket;
-    private final IpAndPort mIpAndPort;
-    
-    
+    private static final String FIND_IP_AND_PORT = "\\((\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?),(\\d\\d?\\d?)\\)";
+
+    private Socket              mSocket;
+    private final IpAndPort     mIpAndPort;
+
     public PassiveDataChannel(IpAndPort ipAndPort) throws UnknownHostException, IOException {
         mIpAndPort = ipAndPort;
         mSocket = new Socket(mIpAndPort.getIp(), mIpAndPort.getPort());
@@ -26,11 +25,11 @@ public class PassiveDataChannel extends DataChannel {
         try {
             return mSocket.getInputStream();
         } catch (IOException e) {
-            e.printStackTrace(); //TODO
+            e.printStackTrace(); // TODO
         }
         return null;
     }
-    
+
     /**
      * Decodes a string containing passive IP and Port
      * 

@@ -40,6 +40,7 @@ public class FtpClient implements ICommandChannelEvents {
     private static final String ASCII             = "ascii";
     private static final String BINARY            = "binary";
     private static final String QUIT              = "quit";
+    private static final String EXIT              = "exit";
     private static final String CDUP              = "cdup";
     private static final String PWD               = "pwd";
     private static final String PASSIVE           = "passive";
@@ -145,7 +146,7 @@ public class FtpClient implements ICommandChannelEvents {
             case CommandChannel.CLOSING_DATA_CHANNEL:
                 mState.setBlockUserInput(false);
                 break;
-                
+
             case CommandChannel.FILE_NOT_FOUND:
                 mState.setBlockUserInput(false);
                 break;
@@ -234,11 +235,6 @@ public class FtpClient implements ICommandChannelEvents {
                 mCmdChannel.setBinaryMode();
                 break;
 
-            case QUIT:
-                mState.setBlockUserInput(true);
-                mCmdChannel.quit();
-                break;
-
             case CDUP:
                 mCmdChannel.cdUp();
                 break;
@@ -263,6 +259,12 @@ public class FtpClient implements ICommandChannelEvents {
 
             case CD:
                 mCmdChannel.cd(args);
+                break;
+
+            case EXIT:
+            case QUIT:
+                mState.setBlockUserInput(true);
+                mCmdChannel.quit();
                 break;
 
             default:
@@ -305,7 +307,7 @@ public class FtpClient implements ICommandChannelEvents {
             startActiveDataChannel();
         }
     }
-    
+
     private void startActiveDataChannel() {
         try {
             mDataChannel = new ActiveDataChannel();

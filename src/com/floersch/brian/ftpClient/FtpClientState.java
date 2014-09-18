@@ -1,6 +1,5 @@
 package com.floersch.brian.ftpClient;
 
-
 /**
  * Class for managing an FTP client state
  * 
@@ -9,9 +8,9 @@ package com.floersch.brian.ftpClient;
 class FtpClientState {
 
     /** Members */
-    private boolean            mBlockInput   = false;
-    private boolean            mPassiveMode  = false;
-    private boolean            mInitialLogin = false;
+    private boolean                  mBlockInput   = false;
+    private boolean                  mPassiveMode  = false;
+    private boolean                  mInitialLogin = false;
     private IDataChannelClientEvents mCallback;
 
     /**
