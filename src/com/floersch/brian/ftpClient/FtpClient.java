@@ -55,11 +55,20 @@ public class FtpClient implements ICommandChannelEvents {
     private static final String  FIND_CMD          = "(.*?)\\s";
     private static final String  PATH_FORMAT       = "%s/%s";
     private static final String  DEBUG_FORMAT      = "---> %s";
-    public static final String[] HELP_MESSAGE      = { "ascii      --> Set ASCII transfer type", "binary     --> Set binary transfer type", "cd <path>  --> Change the remote working directory",
-            "cdup       --> Change the remote working directory to the", "               parent directory (i.e., cd ..)", "debug      --> Toggle debug mode",
-            "dir        --> List the contents of the remote directory", "get path   --> Get a remote file", "help       --> Displays this text", "passive    --> Toggle passive/active mode",
-            "put path   --> Transfer the specified file to the server", "pwd        --> Print the working directory on the server", "quit       --> Close the connection to the server and terminate",
-            "user login --> Specify the user name (will prompt for password)" };
+    public static final String[] HELP_MESSAGE      = { 
+        "ascii      --> Set ASCII transfer type",
+        "binary     --> Set binary transfer type",
+        "cd <path>  --> Change the remote working directory",
+        "cdup       --> Change the remote working directory to the",
+        "               parent directory (i.e., cd ..)", "debug      --> Toggle debug mode",
+        "dir        --> List the contents of the remote directory",
+        "get path   --> Get a remote file",
+        "help       --> Displays this text", "passive    --> Toggle passive/active mode",
+        "put path   --> Transfer the specified file to the server",
+        "pwd        --> Print the working directory on the server",
+        "quit       --> Close the connection to the server and terminate",
+        "user login --> Specify the user name (will prompt for password)" 
+    };
 
     /** Members */
     private FtpClientState       mState;
