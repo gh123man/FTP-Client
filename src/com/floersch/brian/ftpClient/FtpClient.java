@@ -156,7 +156,7 @@ public class FtpClient implements ICommandChannelEvents {
                 mCmdChannel.newUser(mEventHandler.requestInput());
                 responseHandled = true;
                 break;
-
+            
             case CommandChannel.UNAME_OK_NEED_PASS:
 
                 mState.setInitialLoginComplete(true);
@@ -166,9 +166,6 @@ public class FtpClient implements ICommandChannelEvents {
                 responseHandled = true;
                 break;
 
-            case CommandChannel.USER_LOGGED_IN:
-                break;
-
             case CommandChannel.ENTERING_PASSIVE_MODE:
                 openPassiveDataChannel(PassiveDataChannel.decodePasv(response));
                 if (mState.getDataChannelClientEventListener() != null) {
@@ -176,6 +173,12 @@ public class FtpClient implements ICommandChannelEvents {
                     mState.getDataChannelClientEventListener().onReady();
                     responseHandled = true;
                 }
+                break;
+                
+            case CommandChannel.USER_LOGGED_IN:
+                mEventHandler.print(response);
+                mCmdChannel.setBinaryMode();
+                responseHandled = true;
                 break;
 
             case CommandChannel.SUCCESS:

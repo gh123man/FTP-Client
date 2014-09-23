@@ -17,6 +17,7 @@ public class CommandChannel {
     public static final int             ABOUT_TO_OPEN_DATA_CHANNEL = 150;
     public static final int             SUCCESS                    = 200;
     public static final int             READY_FOR_NEW_USER         = 220;
+    public static final int             LOGIN_SUCCESS              = 230;
     public static final int             CLOSING_DATA_CHANNEL       = 226;
     public static final int             ENTERING_PASSIVE_MODE      = 227;
     public static final int             USER_LOGGED_IN             = 230;
