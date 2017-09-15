@@ -1,4 +1,4 @@
-#FTP Client
+# FTP Client
 Originally written for a class project.
 
 Supports all RFC 959 functions with the exception of file pushing.
